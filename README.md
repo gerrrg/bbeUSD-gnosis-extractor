@@ -14,9 +14,26 @@ TempleDAO Multisig: https://etherscan.io/tx/0xe21cd49a8738fcb1e874e44b926d104214
 Balancer Feel Collector: https://etherscan.io/tx/0xd88e493c76989c6bb58d244a5a0d8a26b96fdc1925c9d8e1074e016e53626f39
 ### How do i do it
 
+#### Getting set up
+
+##### API keys
+You will need an Infura api key that you can get at [Infura](https://app.infura.io/login).  Accounts are free.  Once logged in you can easily create a key.
+
+You'll also need an etherscan api key.  You can find that by [loging into etherscan](https://etherscan.io/login), and then creating an api key [here](https://etherscan.io/myapikey)
+
+export these keys to the following environment variables
+```bash
+export ETHERSCAN_TOKEN=...
+export WEB3_INFURA_PROJECT_ID=...
+```
+**HINT:  Add these to your .profile so they are always there and you don't have to think about this again if you had to do all this.**
+
+##### Dev Environment
 Recommend using Python 3.9.  You can install it on a mac with homebrew `brew install python@3.9`
 
 You will also need ganahce-cli installed.  `npm install ganache-cli`
+
+If you don't have npm, `try brew install npm`
 
 Install dependancies.  You can setup a venv if you want
 ```bash
@@ -24,6 +41,8 @@ python3.9 -m venv venv
 source venv/bin/activate
 pip3.9 install requirements.txt
 ```
+
+#### Running the simulated extraction and building a multisig payload
 Edit the script in [scripts/extractInFork.py](scripts/extractInFork.py) and change the address of multisig to your address.  It doesn't have to be a multisig to run the simulation, but you can only load the resulting payload into a gnosis safe.
 
 Check all the other addresses and make sure they make sense/you understand.
@@ -47,3 +66,4 @@ DAI in: 64590.65470597399
 ```
 
 A file will be created called EulerBreakoutOutput.json.  If the address provided as multisig was a multisig, you can load this into transaction builder and simulate the results on tenderly.  Once loaded into the safe, the transaction is reasonably easy to read.
+
