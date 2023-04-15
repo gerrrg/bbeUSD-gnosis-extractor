@@ -74,7 +74,6 @@ def main(multisig=multisig):
         j = txtemplate
         j["data"] = calldata
         txlist.append(dict(j))
-        print(j, "\n\n")
     endjson["transactions"] = txlist
     with open("eulerBreakoutOutput.json", "w") as f:
         json.dump(endjson, f)
