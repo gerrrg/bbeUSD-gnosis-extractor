@@ -50,9 +50,10 @@ def main(multisig=multisig):
         encoded = encode_abi(types, [exitKind, token.balanceOf(multisig)])
         (lineartokens, yyy, zzz) = vault.getPoolTokens(poolId)
         if token != pool:
+            # The true at the end of this statement withdraws linear pool tokens to internal balances.
             txs.append(vault.exitPool(poolId, multisig, multisig, (lineartokens, [0,0,0], encoded.hex(), True), {'from': multisig}))
 
-    ## wd from vault
+    # wd from internal balances in vault back to address
     oplist = []
     for token in recoveryTokens:
         amount = vault.getInternalBalance(multisig, [token])[0]
