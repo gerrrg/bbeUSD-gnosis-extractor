@@ -6,9 +6,9 @@
     "name": "Transactions Batch",
     "description": "",
     "txBuilderVersion": "1.13.3",
-    "createdFromSafeAddress": "0x4D6175d58C5AceEf30F546C0d5A557efFa53A950",
+    "createdFromSafeAddress": "",
     "createdFromOwnerAddress": "",
-    "checksum": "0xd2d40233494806c3d91ca24493c91ee62ca69c36605b0738eae83d7cf012ca7c"
+    "checksum": ""
   },
   "transactions": [
     {
