@@ -7,12 +7,12 @@ multisig = "PUT YOUR WALLET/MULTISIG ADDRESS HERE"
 
 ### Logic
 def main(multisig=multisig):
-    bbeusd = Contract("0x50Cf90B954958480b8DF7958A9E965752F627124")
-    vault = Contract("0xBA12222222228d8Ba445958a75a0704d566BF2C8")
+    bbeusd = Contract.from_explorer("0x50Cf90B954958480b8DF7958A9E965752F627124")
+    vault = Contract.from_explorer("0xBA12222222228d8Ba445958a75a0704d566BF2C8")
     bbeusdId = "0x50cf90b954958480b8df7958a9e965752f62712400000000000000000000046f"
-    usdc = Contract("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
-    usdt = Contract("0xdAC17F958D2ee523a2206206994597C13D831ec7")
-    dai = Contract("0x6B175474E89094C44Da98b954EedeAC495271d0F")
+    usdc = Contract.from_explorer("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
+    usdt = Contract.from_explorer("0xdAC17F958D2ee523a2206206994597C13D831ec7")
+    dai = Contract.from_explorer("0x6B175474E89094C44Da98b954EedeAC495271d0F")
     exitKind = 255  # RecoveryMode Exit
     txs = []
 
@@ -40,7 +40,7 @@ def main(multisig=multisig):
 
     ## wd from linear pool tokens
     for token in pooltokens:
-        tokens[token] = Contract(token)
+        tokens[token] = Contract.from_explorer(token)
         token = tokens[token]
         if token.address == bbeusd.address:
             poolId = bbeusdId
@@ -60,7 +60,7 @@ def main(multisig=multisig):
         oplist.append((1, token, amount, multisig, multisig))
 
     txs.append(vault.manageUserBalance(oplist, {'from': multisig}))
-
+    
     ### Generate multisig payload
     with open("txbuilder_calldata.json", "r") as f:
         endjson = json.load(f)
