@@ -77,7 +77,8 @@ def main(multisig=multisig):
     endjson["transactions"] = txlist
     with open("eulerBreakoutOutput.json", "w") as f:
         json.dump(endjson, f)
-    
+
+    # Explain what Happened
     usdc_in = (usdc.balanceOf(multisig) - i_usdc) / 10 ** usdc.decimals()
     usdt_in = (usdt.balanceOf(multisig) - i_usdt) / 10 ** usdt.decimals()
     dai_in = (dai.balanceOf(multisig) - i_dai) / 10 ** dai.decimals()
