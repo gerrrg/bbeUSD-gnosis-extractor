@@ -88,7 +88,7 @@ Go the [Alpha Version of the Internal Balancer tool created by Balancer Contribu
 
 Connect your wallet, you will be able to see and withdraw your internal balances there.
 
-Note that as of the time of this writing the withdraw function was not working, so no tx's.
+**Note that as of the time of this writing the withdraw function was not working, so no tx's.**
 
 Here are the internal balances of my wallet. I did some other experimentation with burning bb-e-usd to internal balances, but the DAI and USDC amounts shown are the outputs you can expect to withdraw from this tx:
 
