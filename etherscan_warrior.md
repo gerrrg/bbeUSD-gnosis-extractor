@@ -58,6 +58,9 @@ Run the function exitPool with the following settings:
  | minAmountsOut      | `[0,0,0]`                                                                                                                            |
  | userdata           | Copy the encoded data from the tool above.  You will need to stick 0x in front of the data.                                          |
  | toInternalBalance  | true                                                                                                                                 |
+
+---
+
 ![img_8.png](images/img_8.png)
 Sign and execute the transaction: https://etherscan.io/tx/0xc5f9c965c8f1b2130d6b995c4ecb119ff3804a8e6c28d62254c05d4b3e91e890
 
@@ -80,7 +83,6 @@ Same deal.
  | toInternalBalance  | true                                                                                                                                 | 
 
 ----
-
 ![img_9.png](images/img_9.png)
 https://etherscan.io/tx/0xc56b23d901d9298ed27f104fbe5c14240a3028bf29afb5e81798ac03de17b73d
 
