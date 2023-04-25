@@ -3,7 +3,7 @@ There's a lot of steps here, but you can do it.  Good luck.  The ability to do t
 
 
 ### Following the TX
-This guide was built using some bb-e-usd in Tritums Multisginer Wallet.  Links to each transaction from the test are provided.
+This guide was built using some bb-e-usd in Tritums Multisginer Wallet.  Links and detailed screenshots for each transaction from the test are provided.  Tritium uses Rabby Wallet.
 
 ## Step 1: Emergency Exit bb-e-usd 
 
