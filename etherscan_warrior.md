@@ -77,9 +77,9 @@ Same deal.
  | assets             | `[0xeB486AF868AeB3b6e53066abc9623b1041b42bc0,0x6B175474E89094C44Da98b954EedeAC495271d0F,0xe025E3ca2bE02316033184551D4d3Aa22024D9DC]` |
  | minAmountsOut      | `[0,0,0]`                                                                                                                            |
  | userdata           | Copy the encoded data from the tool above.  You will need to stick 0x in front of the data.                                          |
- | toInternalBalance  | true                                                                                                                                 |
- 
----
+ | toInternalBalance  | true                                                                                                                                 | 
+
+----
 
 ![img_9.png](images/img_9.png)
 https://etherscan.io/tx/0xc56b23d901d9298ed27f104fbe5c14240a3028bf29afb5e81798ac03de17b73d
