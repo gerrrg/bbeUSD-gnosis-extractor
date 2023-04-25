@@ -7,6 +7,9 @@ You should get arounnd 32 to 33 cents per bb--e-usd out.  The USDT burns to very
 ### Following the TX
 This guide was built using some bb-e-usd in Tritums Multisginer Wallet.  Links and detailed screenshots for each transaction from the test are provided.  Tritium uses Rabby Wallet.
 
+## Prep Work
+Withdraw all bb-e-usd composite tokens (paired with reth, wsteth, temple, dola) using the UI such thaat you have the most bb-e-usd you could ever have.
+
 ## Step 1: Emergency Exit bb-e-usd 
 
 Go to the Pool page for [bb-e-usd](https://app.balancer.fi/#/ethereum/pool/0x50cf90b954958480b8df7958a9e965752f62712400000000000000000000046f)
