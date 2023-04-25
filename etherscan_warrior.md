@@ -79,7 +79,7 @@ https://etherscan.io/tx/0xc56b23d901d9298ed27f104fbe5c14240a3028bf29afb5e81798ac
 There's not enough to make it worth the gas.  If you want to waste money/play around, you can get the token list by querying getTokenList with the poolId of the bb-e-usdt pool on the vault.
 
 ### Step 3: Withdrawing your stablecoins
-Go the [Alpha Version of a tool created by Balancer Contributors](https:Go the [Alpha Version of a tool created by Balancer Contributors](https://tools.balancer.blue/internalmanager)//tools.balancer.blue/internalmanager)
+Go the [Alpha Version of the Internal Balancer tool created by Balancer Contributors](https://tools.balancer.blue/internalmanager)
 
 Connect your wallet, you will be able to see and withdraw your internal balances there.
 
