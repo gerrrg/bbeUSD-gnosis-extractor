@@ -90,3 +90,9 @@ Connect your wallet, you will be able to see and withdraw your internal balances
 
 Note that as of the time of this writing the withdraw function was not working, so no tx's.
 
+Here are the internal balances of my wallet. I did some other experimentation with burning bb-e-usd to internal balances, but the DAI and USDC amounts shown are the outputs you can expect to withdraw from this tx:
+
+![img.png](images/img.png)
+
+`32.99 USDC + 34.38 DAI = 67.37 USD` out from an original `199.87` bb-e-usd burned = 33.7 cents out per BPT in. 
+
