@@ -1,6 +1,8 @@
 # Burning your bb-e-usd for the etherscan warrior
 There's a lot of steps here, but you can do it.  Good luck.  The ability to do this all via the UI is comming soon.  If you get stuck you will be able to finish with the UI later.  Make VERY SURE to always enter your own address as the **sender** and **recipient** in the etherscan transactions and you're tokens will remain in your possesion.  No approvals are required.
 
+You should get arounnd 32 to 33 cents per bb--e-usd out.  The USDT burns to very little withdrawabele tokens and is really in no case worth the gas.
+
 
 ### Following the TX
 This guide was built using some bb-e-usd in Tritums Multisginer Wallet.  Links and detailed screenshots for each transaction from the test are provided.  Tritium uses Rabby Wallet.
