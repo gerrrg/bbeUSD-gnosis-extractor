@@ -69,7 +69,7 @@ Note that you received no tokens.  You can now find and withdraw internal balanc
 #### bb-e-dai
 Same deal.
 - Get your balance [here](https://etherscan.io/token/0xeb486af868aeb3b6e53066abc9623b1041b42bc0#readContract)
-- Generate a new userdata using the values using the encoder tool
+- Generate a new userdata using the resulting balance using the [encoder tool](https://abi.hashex.org/)
 - Then use the following values for exit pool (Different assets + userdata)
 
 | Field              | Setting                                                                                                                              |
