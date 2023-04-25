@@ -96,3 +96,5 @@ Here are the internal balances of my wallet. I did some other experimentation wi
 
 `32.99 USDC + 34.38 DAI = 67.37 USD` out from an original `199.87` bb-e-usd burned = 33.7 cents out per BPT in. 
 
+The e-tokens, while worthless, remain in your posession as an internal vault balance.  They could be withdrawn in the future if Euler ever unfreezes the tokens.
+
