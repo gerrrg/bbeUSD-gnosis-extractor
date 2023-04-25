@@ -1,5 +1,5 @@
 # Burning your bb-e-usd for the etherscan warrior
-There's a lot of steps here, but you can do it.  Good luck.  The ability to do this all via the UI is comming soon.
+There's a lot of steps here, but you can do it.  Good luck.  The ability to do this all via the UI is comming soon.  If you get stuck you will be able to finish with the UI later.
 
 
 ### Following the TX
