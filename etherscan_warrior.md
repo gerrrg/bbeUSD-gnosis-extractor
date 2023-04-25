@@ -12,7 +12,10 @@ Withdraw all your bb-e-usd proportionally:
 
 ![img_4.png](images/img_4.png)
 ---
+
 ![img_5.png](images/img_5.png)
+
+---
 
 https://etherscan.io/tx/0xe3803dae065a6ca1a33d7d8f98955de1fe98af2ae0a2168d75d5d12750dff8bf
 
