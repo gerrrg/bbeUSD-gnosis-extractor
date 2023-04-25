@@ -51,8 +51,7 @@ Run the function exitPool with the following settings:
  | userdata           | Copy the encoded data from the tool above.  You will need to stick 0x in front of the data.                                          |
  | toInternalBalance  | true                                                                                                                                 |
 ![img_8.png](images/img_8.png)
-Sign and execute the transaction: https://etherscan.io/tx/0x9dfef65ee759bbfde1ce27e83852df82016969131985ceda06cfdccf0cbad12a
-https://etherscan.io/tx/0xc5f9c965c8f1b2130d6b995c4ecb119ff3804a8e6c28d62254c05d4b3e91e890
+Sign and execute the transaction: https://etherscan.io/tx/0xc5f9c965c8f1b2130d6b995c4ecb119ff3804a8e6c28d62254c05d4b3e91e890
 
 Note that you received no tokens.  You can now find and withdraw internal balances using a [Alpha Version of a tool created by Balancer Contributors](https://tools.balancer.blue/internalmanager)
 
