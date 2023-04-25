@@ -78,7 +78,8 @@ Same deal.
  | minAmountsOut      | `[0,0,0]`                                                                                                                            |
  | userdata           | Copy the encoded data from the tool above.  You will need to stick 0x in front of the data.                                          |
  | toInternalBalance  | true                                                                                                                                 |
- ---
+ 
+---
 
 ![img_9.png](images/img_9.png)
 https://etherscan.io/tx/0xc56b23d901d9298ed27f104fbe5c14240a3028bf29afb5e81798ac03de17b73d
