@@ -8,7 +8,7 @@ You should get arounnd 32 to 33 cents per bb--e-usd out.  The USDT burns to very
 This guide was built using some bb-e-usd in Tritums Multisginer Wallet.  Links and detailed screenshots for each transaction from the test are provided.  Tritium uses Rabby Wallet.
 
 ## Prep Work
-Withdraw all bb-e-usd composite tokens (paired with reth, wsteth, temple, dola) using the UI such thaat you have the most bb-e-usd you could ever have.
+Withdraw all bb-e-usd composite tokens (paired with reth, wsteth, temple, dola) using the UI such that you have the most bb-e-usd you could ever have.
 
 ## Step 1: Emergency Exit bb-e-usd 
 
@@ -69,7 +69,7 @@ Note that you received no tokens.  You can now find and withdraw internal balanc
 #### bb-e-dai
 Same deal.
 - Get your balance [here](https://etherscan.io/token/0xeb486af868aeb3b6e53066abc9623b1041b42bc0#readContract)
-- Generate a new userdata using the values using the encoder tool
+- Generate a new userdata using the resulting balance using the [encoder tool](https://abi.hashex.org/)
 - Then use the following values for exit pool (Different assets + userdata)
 
 | Field              | Setting                                                                                                                              |
@@ -88,6 +88,15 @@ https://etherscan.io/tx/0xc56b23d901d9298ed27f104fbe5c14240a3028bf29afb5e81798ac
 
 ### bb-e-usdt
 There's not enough to make it worth the gas.  If you want to waste money/play around, you can get the token list by querying getTokenList with the poolId of the bb-e-usdt pool on the vault.
+
+Here is an example of 4 USDT comming out of a 375k burn in the POC.  The gas costs include 1 tx to withdraw the linear pool token to internal balances and 1 tx to withdraw the USDT:
+```
+=*** Final report.
+BPTS burnt: 375523.8269979963
+USDC in: 61995.513759
+USDT in: 4.080702
+DAI in: 64590.65470597399
+```
 
 ### Step 3: Withdrawing your stablecoins
 Go the [Alpha Version of the Internal Balancer tool created by Balancer Contributors](https://tools.balancer.blue/internalmanager)
