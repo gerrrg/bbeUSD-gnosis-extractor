@@ -1,5 +1,5 @@
 # Burning your bb-e-usd for the etherscan warrior
-There's a lot of steps here, but you can do it.  Good luck.  The ability to do this all via the UI is comming soon.  If you get stuck you will be able to finish with the UI later.
+There's a lot of steps here, but you can do it.  Good luck.  The ability to do this all via the UI is comming soon.  If you get stuck you will be able to finish with the UI later.  Make VERY SURE to always enter your own address as the sender and receiver in the etherscan transactions and you're tokens will remain in your possesion.  No approvals are required.
 
 
 ### Following the TX
