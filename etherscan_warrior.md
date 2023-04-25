@@ -1,9 +1,6 @@
 # Burning your bb-e-usd for the etherscan warrior
 There's a lot of steps here, but you can do it.  Good luck.  The ability to do this all via the UI is comming soon.
 
-## Note about approvals
-There's a lot of approvals required here.  Normally unlimted approvals are a bad idea, but in this case, many of the tokens to approve are dead BPTs that will never have any value beyond the burn.  For this reason and to make things simpler, big approvals are suggested in this case. Don't make a habit of it.  That's how you get rekt.
-
 
 ## Following the TX
 This guide was built using some bb-e-usd in Tritums Multisginer Wallet.  Links to each transaction from the test are provided.
