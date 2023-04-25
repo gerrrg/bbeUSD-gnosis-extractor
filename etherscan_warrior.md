@@ -2,10 +2,11 @@
 There's a lot of steps here, but you can do it.  Good luck.  The ability to do this all via the UI is comming soon.
 
 
-## Following the TX
+### Following the TX
 This guide was built using some bb-e-usd in Tritums Multisginer Wallet.  Links to each transaction from the test are provided.
 
-### Step 1: Emergency Exit bb-e-usd 
+## Step 1: Emergency Exit bb-e-usd 
+
 Go to the Pool page for [bb-e-usd](https://app.balancer.fi/#/ethereum/pool/0x50cf90b954958480b8df7958a9e965752f62712400000000000000000000046f)
 Withdraw all your bb-e-usd proportionally:
 ![img_4.png](images/img_4.png)
@@ -13,12 +14,12 @@ Withdraw all your bb-e-usd proportionally:
 ![img_5.png](images/img_5.png)
 https://etherscan.io/tx/0xe3803dae065a6ca1a33d7d8f98955de1fe98af2ae0a2168d75d5d12750dff8bf
 
-### Step 2: Emergency Exit linear pool tokens to internal balances
+## Step 2: Emergency Exit linear pool tokens to internal balances
 
 You just withdrew [bb-e-usdc](https://app.balancer.fi/#/ethereum/pool/0xd4e7c1f3da1144c9e2cfd1b015eda7652b4a439900000000000000000000046a), [bb-e-dai](https://app.balancer.fi/#/ethereum/pool/0x50cf90b954958480b8df7958a9e965752f62712400000000000000000000046f), and [bb-e-usdt](https://app.balancer.fi/#/ethereum/pool/0x3c640f0d3036ad85afa2d5a9e32be651657b874f00000000000000000000046b).
 You can view your balances on those links, but you will not be able to withdraw because the e-tokens are not-transferrable causing the contract to revert.  In the next week or 2 the UI will be extended to allow you to withdraw to internal balances, breaking the LP while avoiding an ERC20 transfer of e-tokens.  For now you can do this in etherscan as follows:
 
-#### bb-e-usdc
+### bb-e-usdc
 Go to [bb-e-usdc](https://etherscan.io/address/0xd4e7c1f3da1144c9e2cfd1b015eda7652b4a4399#readContract) on etherscan.  
 
 Run function 3. Balance of specifying your address.  Copy this number.
@@ -71,7 +72,7 @@ Same deal.
 ![img_9.png](images/img_9.png)
 https://etherscan.io/tx/0xc56b23d901d9298ed27f104fbe5c14240a3028bf29afb5e81798ac03de17b73d
 
-#### bb-e-usdt
+### bb-e-usdt
 There's not enough to make it worth the gas.  If you want to waste money/play around, you can get the token list by querying getTokenList with the poolId of the bb-e-usdt pool on the vault.
 
 ### Step 3: Withdrawing your stablecoins
