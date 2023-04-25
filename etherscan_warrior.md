@@ -89,6 +89,15 @@ https://etherscan.io/tx/0xc56b23d901d9298ed27f104fbe5c14240a3028bf29afb5e81798ac
 ### bb-e-usdt
 There's not enough to make it worth the gas.  If you want to waste money/play around, you can get the token list by querying getTokenList with the poolId of the bb-e-usdt pool on the vault.
 
+Here is an example of 4 USDT comming out of a 375k burn in the POC.  The gas costs include 1 tx to withdraw the linear pool token to internal balances and 1 tx to withdraw the USDT:
+```
+=*** Final report.
+BPTS burnt: 375523.8269979963
+USDC in: 61995.513759
+USDT in: 4.080702
+DAI in: 64590.65470597399
+```
+
 ### Step 3: Withdrawing your stablecoins
 Go the [Alpha Version of the Internal Balancer tool created by Balancer Contributors](https://tools.balancer.blue/internalmanager)
 
