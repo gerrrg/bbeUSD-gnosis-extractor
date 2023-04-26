@@ -108,9 +108,13 @@ Here are the internal balances of the wallet used. There was another other exper
 ![img.png](images/img.png)
 
 
-[DAI Withdraw](https://etherscan.io/tx/0x213622cf563f5ed029cdc77d5ea4e1ee8471d7f5c833169caf4c6d4c5f3addc9)
 
 `32.99 USDC + 34.38 DAI = 67.37 USD` out from an original `199.87` bb-e-usd burned = 33.7 cents out per BPT in. 
 
 The e-tokens, while worthless, remain in your possession as an internal vault balance.  They could be withdrawn in the future if Euler ever unfreezes the tokens.
+
+#### Withdraw TXs
+- [DAI Withdraw](https://etherscan.io/tx/0x213622cf563f5ed029cdc77d5ea4e1ee8471d7f5c833169caf4c6d4c5f3addc9)
+
+
 
