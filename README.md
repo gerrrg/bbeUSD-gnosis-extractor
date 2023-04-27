@@ -1,5 +1,8 @@
 ## bb-e-usd liquid dollar extraction POC
 
+[See Here](./etherscan-warrior.md) for instructions how to run this PoC using etherscan.  Below are instructions for how to execute on a multisig and/or fork.
+
+
 ### Concept
 This script runs in a fork of mainnet and simulates emergency withdrawing all everything back to non-bpt tokens in the addresses internal vault balances.  Then it withdraws all DAI, USDC, and USDT from the balance.  It can be run on any address to print a report, and the resulting JSON should work with any gnosis-safe multisig that has bbeUSD in it.  It has not been tested with other tokens.  
 
