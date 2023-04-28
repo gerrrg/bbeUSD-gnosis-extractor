@@ -1,6 +1,6 @@
 ## bb-e-usd liquid dollar extraction POC
 
-[See Here](./etherscan-warrior.md) for instructions how to run this PoC using etherscan.  Below are instructions for how to execute on a multisig and/or fork.
+[See Here](etherscan_warrior.md) for instructions how to run this PoC using etherscan.  Below are instructions for how to execute on a multisig and/or fork.
 
 
 ### Concept
