@@ -40,7 +40,7 @@ Read the notes up top that explains what will happen.  Then click withdraw and e
 ![img_2.png](images/img_2.png)
 https://etherscan.io/tx/0xd46789c0dd4556abf752a3e3bea2d77cd925e072fd2230f8f673a9f0bdde2ae9
 
-Note that no balances are transferred to your wallet at this time, as the withdrawal is done to internal balances in the vault as explained in the notice.
+Note that no balances are transferred to your wallet at this time because the withdrawal is done to internal balances in the vault as explained in the notice.
 
 Once the transaction has executed, go to the new [Vault Balances Page](https://app.balancer.fi/#/ethereum/balances) that was linked in the notice on the withdraw screen.
 
