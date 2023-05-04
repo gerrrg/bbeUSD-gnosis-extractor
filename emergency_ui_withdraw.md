@@ -55,10 +55,11 @@ Repeat this process (step 2) for each bb-e component token you wish to redeem.
 
 It may be easier to withdraw all the tokens to internal balances first and then withdraw everything from the vaults page, but perhaps more comforting to do one first and see that it works.  If you really want a low value test, start with USDT.
 
+The eTokens will remain in your personal balance in the vault.  If at some point Euler unfreezes, you will be able to withdraw the eTokens using the internal balances tool.
 
 ## Step 3: Claim your redemption from Euler.
 
-If you have not already done so, bb-e-usd HODLers also have tokens to claim directly from euler.  They be claimed on the [Euler Redemption Page](https://redemptions.euler.finance/).
+If you have not already done so, bb-e-usd HODLers also have tokens to claim directly from Euler.  They be claimed on the [Euler Redemption Page](https://redemptions.euler.finance/).
 
 
 Thank you for your patience through out this whole situation, and for providing liquidity on balancer.
