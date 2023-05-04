@@ -42,6 +42,7 @@ https://etherscan.io/tx/0xd46789c0dd4556abf752a3e3bea2d77cd925e072fd2230f8f673a9
 
 Note that no balances are transferred to your wallet at this time because the withdrawal is done to internal balances in the vault as explained in the notice.
 
+## Step 3: Withdraw transferable coins from internal balances in the vault
 Once the transaction has executed, go to the new [Vault Balances Page](https://app.balancer.fi/#/ethereum/balances) that was linked in the notice on the withdraw screen.
 
 ![img_3.png](images/img_3.png)
@@ -57,7 +58,7 @@ It may be easier to withdraw all the tokens to internal balances first and then 
 
 The eTokens will remain in your personal balance in the vault.  If at some point Euler unfreezes, you will be able to withdraw the eTokens using the internal balances tool.
 
-## Step 3: Claim your redemption from Euler.
+## Step 4: Claim your redemption from Euler.
 
 If you have not already done so, bb-e-usd HODLers also have tokens to claim directly from Euler.  They be claimed on the [Euler Redemption Page](https://redemptions.euler.finance/).
 
