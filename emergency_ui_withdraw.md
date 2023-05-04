@@ -28,7 +28,7 @@ https://etherscan.io/tx/0xe3803dae065a6ca1a33d7d8f98955de1fe98af2ae0a2168d75d5d1
 Once the withdraw tx from bb-e-usd is executed, you should be able to go to the [portfolio view](https://app.balancer.fi/#/ethereum/portfolio) page and see the bb-e-usdc, bb-e-usdt, and bb-e-dai you have withdrawn:
 ![img.png](images/img_10.png)
 
-It is not recommended to withdraw dai, but you can.  For each of the tokens you wish to withdraw, follow this process(demonstrated for bb-e-dai but the same for the other coins.)
+It is not recommended to withdraw USDT due to low output, but you can.  For each of the tokens you wish to withdraw, follow this process(demonstrated for bb-e-dai but the same for the other coins.)
 
 Click on the token in the pool to bring up the portfolio page [bb-e-dai](https://app.balancer.fi/#/ethereum/pool/0xeb486af868aeb3b6e53066abc9623b1041b42bc000000000000000000000046c).
 
