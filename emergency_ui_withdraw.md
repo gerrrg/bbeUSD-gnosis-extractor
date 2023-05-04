@@ -62,4 +62,4 @@ The eTokens will remain in your personal balance in the vault.  If at some point
 If you have not already done so, bb-e-usd HODLers also have tokens to claim directly from Euler.  They be claimed on the [Euler Redemption Page](https://redemptions.euler.finance/).
 
 
-Thank you for your patience through out this whole situation, and for providing liquidity on balancer.
+Thank you for your patience throughout this whole situation, and for providing liquidity on balancer.
