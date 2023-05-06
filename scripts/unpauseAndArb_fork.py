@@ -26,7 +26,6 @@ BBEUSDT = "0x3c640f0d3036ad85afa2d5a9e32be651657b874f"
 BBEDAI = "0xeb486af868aeb3b6e53066abc9623b1041b42bc0"
 BBEUSD="0x50Cf90B954958480b8DF7958A9E965752F627124"
 VAULT="0xBA12222222228d8Ba445958a75a0704d566BF2C8".lower()
-INTERNAL_TO_EXTERNAL = (MULTISIG, False, MULTISIG, False)
 with open("abis/ILinearPool.json", "r") as f:
     ILinearPool = json.load(f)
 with open("abis/IComposableStable.json", "r") as f:
@@ -124,6 +123,7 @@ print(dicts_to_table_string(initial_pool_balances, initial_pool_balances[0].keys
 print("Starting msig balances:\n")
 print(dicts_to_table_string(initial_msig_balances, initial_msig_balances[0].keys()))
 ################################## DO IT ##########################################
+INTERNAL_TO_EXTERNAL = (MULTISIG, True, MULTISIG, False)
 
 
 ### Setup stuff that happens before the atomic tx
@@ -134,17 +134,17 @@ eulerProxy = Contract.from_abi("Proxy", "0x055DE1CCbCC9Bc5291569a0b6aFFdF8b5707a
 eulerProxy.installModules(["0xbb0D4bb654a21054aF95456a3B29c63e8D1F4c0a"], {"from": EULER_ADMIN}) ## fix rate provider
 
 ### USDC
-swapKind = 1 ## Given in
+swapKind = 1 ## 0=GIVEN_IN, 1=GIVEN_OUT
 assetIn = bbeusdc
 poolId = assetIn.getPoolId()
 assetOut = usdc
 userdata = "0x0000000000000000000000000000000000000000000000000000000000000000"
 for d in initial_pool_balances:
    if d["lptoken"] == "bb-e-USDC" and d["token"] == "USDC":
-      amount = d["balance"]
+        tokenAmount = d["balance"]/1.001  #seems like we gotta leave a little dust
 
-singleswap = (poolId, swapKind, assetIn, assetOut, amount, userdata)
-txs.append(vault.swap(singleswap, INTERNAL_TO_EXTERNAL, amount*8, now+(60*60*24*3), {"from": msig}))
+singleswap = (poolId, swapKind, eUSDC, assetOut, tokenAmount, userdata)
+txs.append(vault.swap(singleswap, INTERNAL_TO_EXTERNAL, 10**50, now+(60*60*24*3), {"from": msig}))
 
 assert(False) ## Console time
 
