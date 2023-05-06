@@ -162,6 +162,8 @@ for lptoken in linearTokens:
             mebalance = usdtoken.balanceOf(msig) / 10 ** decimals
             mdelta = mebalance - mibalance
             print(f"Initial Msig Balance: {mibalance}, current: {mebalance}, Delta:{mdelta} ")
+    print(txs)
+    assert False, "Done" ## drop to interactive council/don't throw stupid main error
 
 
 
