@@ -16,6 +16,8 @@ txs = []
 ### Constants
 MULTISIG = "0x10A19e7eE7d7F8a52822f6817de8ea18204F2e4f".lower() ### Should be able to unpause pools
 WHALE = "0x4D6175d58C5AceEf30F546C0d5A557efFa53A950" ### Temple Multisig
+EULER_ADMIN ="0x25Aa4a183800EcaB962d84ccC7ada58d4e126992" ### Euler msig that can change protocol settings
+EULER_OG_ETOKEN_LOGIC="0xbb0D4bb654a21054aF95456a3B29c63e8D1F4c0a"
 eUSDC = "0xeb91861f8a4e1c12333f42dce8fb0ecdc28da716".lower()
 eUSDT = "0x4d19f33948b99800b6113ff3e83bec9b537c85d2".lower()
 eDAI= "0xe025e3ca2be02316033184551d4d3aa22024d9dc".lower()
@@ -29,7 +31,8 @@ with open("abis/ILinearPool.json", "r") as f:
     ILinearPool = json.load(f)
 with open("abis/IComposableStable.json", "r") as f:
     IComposableStable = json.load(f)
-
+with open("abis/eulerProxy.json", "r") as f:
+    EulerProxy = json.load(f)
 
 
 ### Setup interfaces and situatuion
@@ -121,12 +124,17 @@ print(dicts_to_table_string(initial_pool_balances, initial_pool_balances[0].keys
 print("Starting msig balances:\n")
 print(dicts_to_table_string(initial_msig_balances, initial_msig_balances[0].keys()))
 ################################## DO IT ##########################################
+
+
+### Setup stuff that happens before the atomic tx
 RolesToAllow = [bbeusdc.getActionId(bbeusdc.unpause.signature)] ### All Linear Pool Tokens here have the same action id
 authorizer.grantRoles(RolesToAllow, msig, {"from": msig})
-txs.append(bbeusdc.unpause({"from": msig}))
+bbeusdc.unpause({"from": msig})
+eulerProxy = Contract.from_abi("Proxy", "0x055DE1CCbCC9Bc5291569a0b6aFFdF8b5707aB16", EulerProxy)
+eulerProxy.installModules(["0xbb0D4bb654a21054aF95456a3B29c63e8D1F4c0a"], {"from": EULER_ADMIN}) ## fix rate provider
 
 ### USDC
-swapKind = 0 ## Given in
+swapKind = 1 ## Given in
 assetIn = bbeusdc
 poolId = assetIn.getPoolId()
 assetOut = usdc
@@ -135,8 +143,8 @@ for d in initial_pool_balances:
    if d["lptoken"] == "bb-e-USDC" and d["token"] == "USDC":
       amount = d["balance"]
 
-singleswap = (poolId, swapKind, assetIn, assetOut, amount/2, userdata)
-txs.append(vault.swap(singleswap, INTERNAL_TO_EXTERNAL, 1, now+(60*60*24*3), {"from": msig}))
+singleswap = (poolId, swapKind, assetIn, assetOut, amount, userdata)
+txs.append(vault.swap(singleswap, INTERNAL_TO_EXTERNAL, amount*8, now+(60*60*24*3), {"from": msig}))
 
 assert(False) ## Console time
 
