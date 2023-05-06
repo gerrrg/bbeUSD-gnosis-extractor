@@ -131,6 +131,8 @@ for lt in linearTokens:
 
     txs.append(vault.swap(singleswap, INTERNAL_TO_EXTERNAL, 10**50, now+(60*60*24*3), {"from": msig}))
 
+txs.append(authorizer.revokeRoles(RolesToAllow, msig, {"from": msig}))
+
 ###################################################################################
 
 ### Report
@@ -152,6 +154,6 @@ for lptoken in linearTokens:
             mebalance = usdtoken.balanceOf(msig) / 10 ** decimals
             mdelta = mebalance - mibalance
             print(f"Initial Msig Balance: {mibalance}, current: {mebalance}, Delta:{mdelta} ")
-    ### Remove unpause from dao msig
-txs.append(authorizer.revokeRoles(RolesToAllow, msig, {"from": msig}))
+
+
 assert False, "Done" ## drop to interactive console/don't throw stupid main error
