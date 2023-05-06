@@ -1,0 +1,15 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "moduleAddrs",
+        "type": "address[]"
+      }
+    ],
+    "name": "installModules",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
