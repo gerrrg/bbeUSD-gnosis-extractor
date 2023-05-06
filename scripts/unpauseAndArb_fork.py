@@ -78,8 +78,8 @@ def transfer_internal_all(token, source, dest):
 
 
 ### Lists
-linearTokens = [bbeusdt, bbeusdc, bbedai]
-etokens = [eUSDT, eUSDC, eDAI]
+linearTokens = [bbeusdc, bbedai]  ### bbeusdt
+etokens = [eUSDC, eDAI] ### USDT is too smol and has other math problems not worth dealing with.
 
 
 # Steal the whales etoken bags
@@ -87,41 +87,36 @@ for token in etokens:
     transfer_internal_all(token, whale, msig)
 
 ### Save initial msig state  for reporting
-initial_msig_balances = [
-    {"token": "bbeusd", "balance": bbeusd.balanceOf(msig)/10**bbeusd.decimals(),},
-    {"token": "usdt", "balance": usdt.balanceOf(msig)/10**usdt.decimals()},
-    {"token": "dai", "balance": dai.balanceOf(msig)/10**dai.decimals()},
-    {"token": "usdc", "balance": usdc.balanceOf(msig)/10**usdc.decimals()},
-]
 
+initial_msig_balances ={
+    "bbeusd":  bbeusd.balanceOf(msig)/10**bbeusd.decimals(),
+    "usdt": usdt.balanceOf(msig) / 10 ** usdt.decimals(),
+    "usdc": usdc.balanceOf(msig) / 10 ** usdc.decimals(),
+    "dai": dai.balanceOf(msig) / 10 ** dai.decimals()
+}
 for token in etokens:
-    initial_msig_balances.append(
-        {
-            "token": token_name_by_address[token.lower()],
-            "balance": vault.getInternalBalance(msig,[token])[0]/10**18,
-        }
-    )
+    initial_msig_balances[token_name_by_address[token.lower()]] = vault.getInternalBalance(msig,[token])[0]/10**18
+
+
 
 ### Save initial pools state for reporting
-initial_pool_balances = []
+initial_liquid_dollars_by_pool = {}
 for lptoken in linearTokens:
     (tokens, balances, foo) = vault.getPoolTokens(lptoken.getPoolId())
     for i in range(len(tokens)):
         if tokens[i] == lptoken:
             continue
-        initial_pool_balances.append(
-            {
-                "lptoken": lptoken.symbol(),
-                "token":  token_name_by_address[tokens[i].lower()],
-                "balance": balances[i]
-            }
-)
+        if tokens[i] not in etokens and "-e-" not in token_name_by_address[tokens[i].lower()]:
+            initial_liquid_dollars_by_pool[token_name_by_address[tokens[i].lower()]] = balances[i]
+
 
 #### Print starting state:
 print("Starting pool balances:\n")
-print(dicts_to_table_string(initial_pool_balances, initial_pool_balances[0].keys()))
+print(initial_liquid_dollars_by_pool)
 print("Starting msig balances:\n")
-print(dicts_to_table_string(initial_msig_balances, initial_msig_balances[0].keys()))
+print(initial_msig_balances)
+
+
 ################################## DO IT ##########################################
 INTERNAL_TO_EXTERNAL = (MULTISIG, True, MULTISIG, False)
 
@@ -129,29 +124,44 @@ INTERNAL_TO_EXTERNAL = (MULTISIG, True, MULTISIG, False)
 ### Setup stuff that happens before the atomic tx
 RolesToAllow = [bbeusdc.getActionId(bbeusdc.unpause.signature)] ### All Linear Pool Tokens here have the same action id
 authorizer.grantRoles(RolesToAllow, msig, {"from": msig})
-bbeusdc.unpause({"from": msig})
 eulerProxy = Contract.from_abi("Proxy", "0x055DE1CCbCC9Bc5291569a0b6aFFdF8b5707aB16", EulerProxy)
 eulerProxy.installModules(["0xbb0D4bb654a21054aF95456a3B29c63e8D1F4c0a"], {"from": EULER_ADMIN}) ## fix rate provider
 
-### USDC
+### Unpause and arb the pools.
 swapKind = 1 ## 0=GIVEN_IN, 1=GIVEN_OUT
-assetIn = bbeusdc
-poolId = assetIn.getPoolId()
-assetOut = usdc
-userdata = "0x0000000000000000000000000000000000000000000000000000000000000000"
-for d in initial_pool_balances:
-   if d["lptoken"] == "bb-e-USDC" and d["token"] == "USDC":
-        tokenAmount = d["balance"]/1.001  #seems like we gotta leave a little dust
+for lt in linearTokens:
+    lt.unpause({"from": msig})
+    assetIn = lt.getWrappedToken()
+    poolId = lt.getPoolId()
+    assetOut = Contract(lt.getMainToken())
+    userdata = b""
+    tokenAmount = initial_liquid_dollars_by_pool[assetOut.symbol()]/1.001
 
-singleswap = (poolId, swapKind, eUSDC, assetOut, tokenAmount, userdata)
-txs.append(vault.swap(singleswap, INTERNAL_TO_EXTERNAL, 10**50, now+(60*60*24*3), {"from": msig}))
+    singleswap = (poolId, swapKind, assetIn, assetOut, tokenAmount, userdata)
 
-assert(False) ## Console time
-
+    txs.append(vault.swap(singleswap, INTERNAL_TO_EXTERNAL, 10**50, now+(60*60*24*3), {"from": msig}))
 
 ###################################################################################
 
-
+### Report
+for lptoken in linearTokens:
+    print(f"Report for {lptoken.symbol()}")
+    (tokens, balances, foo) = vault.getPoolTokens(lptoken.getPoolId())
+    for i in range(len(tokens)):
+        if tokens[i] == lptoken:
+            continue
+        if tokens[i].lower() not in etokens:
+            usdtoken = Contract(tokens[i])
+            decimals = usdtoken.decimals()
+            tname = token_name_by_address[tokens[i].lower()]
+            pibalance = initial_liquid_dollars_by_pool[tname] / 10 ** decimals
+            pebalance = balances[i] / 10 ** decimals
+            pdelta = pebalance - pibalance
+            print(f"Initial Pool Balance: {pibalance}, Current: {pebalance}, Delta:{pdelta}")
+            mibalance = initial_msig_balances[tname.lower()] / 10 ** decimals
+            mebalance = usdtoken.balanceOf(msig) / 10 ** decimals
+            mdelta = mebalance - mibalance
+            print(f"Initial Msig Balance: {mibalance}, current: {mebalance}, Delta:{mdelta} ")
 
 
 
