@@ -136,7 +136,7 @@ for lt in linearTokens:
 
 
 ### Handle Dola pool
-EXTERNAL_TO_EXTERNAL = (MULTISIG, True, MULTISIG, False)
+EXTERNAL_TO_EXTERNAL = (MULTISIG, False, MULTISIG, False)
 
 bbeusd.transfer(msig, 50000*10**18, {"from": vault.address})
 txs.append(bbedola.unpause({"from": msig}))
