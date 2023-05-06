@@ -1,6 +1,6 @@
 ### Pasted in a bunch of lower addresses.  Since this is a one off POC just pushing stuff that way.  sorry.
 
-from brownie import Contract
+from brownie import Contract, chain
 import json
 import time
 
@@ -22,6 +22,8 @@ BBEUSDC = "0xd4e7c1f3da1144c9e2cfd1b015eda7652b4a4399"
 BBEUSDT = "0x3c640f0d3036ad85afa2d5a9e32be651657b874f"
 BBEDAI = "0xeb486af868aeb3b6e53066abc9623b1041b42bc0"
 BBEUSD="0x50Cf90B954958480b8DF7958A9E965752F627124"
+BBEDOLA="0x133d241f225750d2c92948e464a5a80111920331"
+DOLA="0x865377367054516e17014CcdED1e7d814EDC9ce4"
 VAULT="0xBA12222222228d8Ba445958a75a0704d566BF2C8".lower()
 with open("abis/ILinearPool.json", "r") as f:
     ILinearPool = json.load(f)
@@ -35,6 +37,7 @@ with open("abis/eulerProxy.json", "r") as f:
 vault = Contract(VAULT)
 authorizer = Contract.from_explorer("0xA331D84eC860Bf466b4CdCcFb4aC09a1B43F3aE6")
 bbeusd = Contract(BBEUSD)
+bbedola = Contract.from_abi("ISable", BBEDOLA, IComposableStable)
 
 usdc = Contract.from_explorer("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
 usdt = Contract.from_explorer("0xdAC17F958D2ee523a2206206994597C13D831ec7")
@@ -57,6 +60,7 @@ token_name_by_address = {
     usdc.address.lower(): "USDC",
     dai.address.lower(): "DAI",
     usdt.address.lower(): "USDT",
+    bbedola.address.lower(): "bbeDOLA"
 }
 
 def transfer_internal_all(token, source, dest):
@@ -97,7 +101,6 @@ for lptoken in linearTokens:
         if tokens[i] not in etokens and "-e-" not in token_name_by_address[tokens[i].lower()]:
             initial_liquid_dollars_by_pool[token_name_by_address[tokens[i].lower()]] = balances[i]
 
-
 #### Print starting state:
 print("Starting pool balances:\n")
 print(initial_liquid_dollars_by_pool)
@@ -110,7 +113,7 @@ INTERNAL_TO_EXTERNAL = (MULTISIG, True, MULTISIG, False)
 
 
 ### Setup stuff that happens before the atomic tx
-RolesToAllow = [bbeusdc.getActionId(bbeusdc.unpause.signature)] ### All Linear Pool Tokens here have the same action id
+RolesToAllow = [bbeusdc.getActionId(bbeusdc.unpause.signature), bbedola.getActionId(bbeusdc.unpause.signature)] ### All Linear Pool Tokens here have the same action id
 eulerProxy = Contract.from_abi("Proxy", "0x055DE1CCbCC9Bc5291569a0b6aFFdF8b5707aB16", EulerProxy)
 eulerProxy.installModules(["0xbb0D4bb654a21054aF95456a3B29c63e8D1F4c0a"], {"from": EULER_ADMIN}) ## fix rate provider
 
@@ -120,18 +123,51 @@ txs.append(authorizer.grantRoles(RolesToAllow, msig, {"from": msig}))
 ### Unpause and arb the pools.
 swapKind = 1 ## 0=GIVEN_IN, 1=GIVEN_OUT
 for lt in linearTokens:
-    lt.unpause({"from": msig})
+    txs.append(lt.unpause({"from": msig}))
     assetIn = lt.getWrappedToken()
     poolId = lt.getPoolId()
     assetOut = Contract(lt.getMainToken())
     userdata = b""
-    tokenAmount = initial_liquid_dollars_by_pool[assetOut.symbol()]/1.001
+    tokenAmount = initial_liquid_dollars_by_pool[assetOut.symbol()]/1.0006
 
     singleswap = (poolId, swapKind, assetIn, assetOut, tokenAmount, userdata)
 
     txs.append(vault.swap(singleswap, INTERNAL_TO_EXTERNAL, 10**50, now+(60*60*24*3), {"from": msig}))
 
+
+### Handle Dola pool
+EXTERNAL_TO_EXTERNAL = (MULTISIG, True, MULTISIG, False)
+
+bbeusd.transfer(msig, 50000*10**18, {"from": vault.address})
+txs.append(bbedola.unpause({"from": msig}))
+assetIn = bbeusd.address
+poolId = bbedola.getPoolId()
+assetOut = DOLA
+userdata = b""
+(tokenAmount, foo, bar, foobar) = vault.getPoolTokenInfo(bbedola.getPoolId(), DOLA)
+
+singleswap = (poolId, 0, assetIn, assetOut, bbeusd.balanceOf(msig), userdata)
+### Jack up a-factor to increase output.  This will have to be done by the maxis over multiple days to work in pause
+bbedola.startAmplificationParameterUpdate(400, chain.time()+(60*60*24), {"from": "0xf4A80929163C5179Ca042E1B292F5EFBBE3D89e6"})
+chain.sleep(60 * 60 * 24 * 1)
+chain.mine()
+bbedola.startAmplificationParameterUpdate(800, chain.time()+(60*60*24), {"from": "0xf4A80929163C5179Ca042E1B292F5EFBBE3D89e6"})
+chain.sleep(60 * 60 * 24 * 1)
+chain.mine()
+bbedola.startAmplificationParameterUpdate(1600, chain.time()+(60*60*24), {"from": "0xf4A80929163C5179Ca042E1B292F5EFBBE3D89e6"})
+chain.sleep(60 * 60 * 24 * 1)
+chain.mine()
+bbedola.startAmplificationParameterUpdate(3200, chain.time()+(60*60*24), {"from": "0xf4A80929163C5179Ca042E1B292F5EFBBE3D89e6"})
+chain.sleep(60 * 60 * 24 * 1)
+chain.mine()
+now = chain.time()
+tx= vault.swap(singleswap, EXTERNAL_TO_EXTERNAL, 100*10**18, now + (60 * 60 * 24 * 3), {"from": msig})
+dola=Contract(DOLA)
+print(f"DOLA msig balance:{dola.balanceOf(msig)/10**18}")
+assert False
+
 txs.append(authorizer.revokeRoles(RolesToAllow, msig, {"from": msig}))
+
 
 ###################################################################################
 
@@ -154,6 +190,8 @@ for lptoken in linearTokens:
             mebalance = usdtoken.balanceOf(msig) / 10 ** decimals
             mdelta = mebalance - mibalance
             print(f"Initial Msig Balance: {mibalance}, Current: {mebalance}, Delta:{mdelta} ")
+
+
 
 ### Generate multisig payload
 with open("scripts/txbuilder_calldata.json", "r") as f:
