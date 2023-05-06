@@ -153,7 +153,25 @@ for lptoken in linearTokens:
             mibalance = initial_msig_balances[tname.lower()] / 10 ** decimals
             mebalance = usdtoken.balanceOf(msig) / 10 ** decimals
             mdelta = mebalance - mibalance
-            print(f"Initial Msig Balance: {mibalance}, current: {mebalance}, Delta:{mdelta} ")
+            print(f"Initial Msig Balance: {mibalance}, Current: {mebalance}, Delta:{mdelta} ")
+
+### Generate multisig payload
+with open("scripts/txbuilder_calldata.json", "r") as f:
+    endjson = json.load(f)
+endjson["meta"]["createdFromSafeAddress"] = msig
+txtemplate = endjson["transactions"][0]
+txlist = []
+
+# Pack all the input data from our txs into txjson format
+for tx in txs:
+    calldata = str(tx.input)
+    j = txtemplate
+    j["data"] = calldata
+    txlist.append(dict(j))
+endjson["transactions"] = txlist
+with open("permissionedArb-daoMultisig.json", "w") as f:
+    json.dump(endjson, f, indent=3)
+
 
 
 assert False, "Done" ## drop to interactive console/don't throw stupid main error
