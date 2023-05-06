@@ -89,10 +89,9 @@ for token in etokens:
 ### Save initial msig state  for reporting
 
 initial_msig_balances ={
-    "bbeusd":  bbeusd.balanceOf(msig)/10**bbeusd.decimals(),
-    "usdt": usdt.balanceOf(msig) / 10 ** usdt.decimals(),
-    "usdc": usdc.balanceOf(msig) / 10 ** usdc.decimals(),
-    "dai": dai.balanceOf(msig) / 10 ** dai.decimals()
+    "usdt": usdt.balanceOf(msig),
+    "usdc": usdc.balanceOf(msig),
+    "dai": dai.balanceOf(msig)
 }
 for token in etokens:
     initial_msig_balances[token_name_by_address[token.lower()]] = vault.getInternalBalance(msig,[token])[0]/10**18
@@ -147,7 +146,7 @@ for lt in linearTokens:
 
 ### Report
 for lptoken in linearTokens:
-    print(f"Report for {lptoken.symbol()}")
+    print(f"\n\nReport for {lptoken.symbol()}")
     (tokens, balances, foo) = vault.getPoolTokens(lptoken.getPoolId())
     for i in range(len(tokens)):
         if tokens[i] == lptoken:
@@ -164,10 +163,9 @@ for lptoken in linearTokens:
             mebalance = usdtoken.balanceOf(msig) / 10 ** decimals
             mdelta = mebalance - mibalance
             print(f"Initial Msig Balance: {mibalance}, current: {mebalance}, Delta:{mdelta} ")
-    print(txs)
     ### Remove unpause from dao msig
-    txs.append(authorizer.revokeRoles(RolesToAllow, msig, {"from": msig}))
-    assert False, "Done" ## drop to interactive council/don't throw stupid main error
+txs.append(authorizer.revokeRoles(RolesToAllow, msig, {"from": msig}))
+assert False, "Done" ## drop to interactive council/don't throw stupid main error
 
 
 
