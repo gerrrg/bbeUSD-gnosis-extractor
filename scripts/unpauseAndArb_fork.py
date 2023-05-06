@@ -123,9 +123,11 @@ INTERNAL_TO_EXTERNAL = (MULTISIG, True, MULTISIG, False)
 
 ### Setup stuff that happens before the atomic tx
 RolesToAllow = [bbeusdc.getActionId(bbeusdc.unpause.signature)] ### All Linear Pool Tokens here have the same action id
-authorizer.grantRoles(RolesToAllow, msig, {"from": msig})
 eulerProxy = Contract.from_abi("Proxy", "0x055DE1CCbCC9Bc5291569a0b6aFFdF8b5707aB16", EulerProxy)
 eulerProxy.installModules(["0xbb0D4bb654a21054aF95456a3B29c63e8D1F4c0a"], {"from": EULER_ADMIN}) ## fix rate provider
+
+### Allow dao multisig to unpause in atomic tx
+txs.append(authorizer.grantRoles(RolesToAllow, msig, {"from": msig}))
 
 ### Unpause and arb the pools.
 swapKind = 1 ## 0=GIVEN_IN, 1=GIVEN_OUT
@@ -163,6 +165,8 @@ for lptoken in linearTokens:
             mdelta = mebalance - mibalance
             print(f"Initial Msig Balance: {mibalance}, current: {mebalance}, Delta:{mdelta} ")
     print(txs)
+    ### Remove unpause from dao msig
+    txs.append(authorizer.revokeRoles(RolesToAllow, msig, {"from": msig}))
     assert False, "Done" ## drop to interactive council/don't throw stupid main error
 
 
