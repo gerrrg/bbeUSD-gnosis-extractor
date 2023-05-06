@@ -164,4 +164,4 @@ for lptoken in linearTokens:
             print(f"Initial Msig Balance: {mibalance}, current: {mebalance}, Delta:{mdelta} ")
     ### Remove unpause from dao msig
 txs.append(authorizer.revokeRoles(RolesToAllow, msig, {"from": msig}))
-assert False, "Done" ## drop to interactive council/don't throw stupid main error
+assert False, "Done" ## drop to interactive console/don't throw stupid main error
