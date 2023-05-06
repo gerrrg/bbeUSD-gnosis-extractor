@@ -2,7 +2,6 @@
 
 from brownie import Contract
 import json
-from prettytable import PrettyTable
 import time
 
 now = time.time()
@@ -60,18 +59,9 @@ token_name_by_address = {
     usdt.address.lower(): "USDT",
 }
 
-
-def dicts_to_table_string(dict_list, header=None):
-    table = PrettyTable(header)
-    for d in dict_list:
-        table.add_row(list(d.values()))
-    return str(table)
-
-
 def transfer_internal_all(token, source, dest):
     amount = vault.getInternalBalance(source, [token])[0]
     oplist = [(2, token, amount, source, dest)]
-    print(json.dumps(oplist))
     txs.append(vault.manageUserBalance(oplist, {'from': source}))
 
 
