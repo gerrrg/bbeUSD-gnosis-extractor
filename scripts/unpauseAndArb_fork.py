@@ -191,7 +191,7 @@ for lptoken in linearTokens:
             mebalance = usdtoken.balanceOf(msig) / 10 ** decimals
             mdelta = mebalance - mibalance
             print(f"Initial Msig Balance: {mibalance}, Current: {mebalance}, Delta:{mdelta}\n\n")
-            print(f"Recovered {dola.balanceOf(msig)/10**dola.decimals()} DOLA using {ibbeusd} available bbeusd")
+            print(f"Recovered {dola.balanceOf(msig)/10**dola.decimals()} DOLA using {ibbeusd} available bbeusd\n\n")
 
 
 
