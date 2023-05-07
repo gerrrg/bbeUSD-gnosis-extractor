@@ -161,10 +161,11 @@ bbedola.startAmplificationParameterUpdate(3200, chain.time()+(60*60*24), {"from"
 chain.sleep(60 * 60 * 24 * 1)
 chain.mine()
 now = chain.time()
-tx= vault.swap(singleswap, EXTERNAL_TO_EXTERNAL, 100*10**18, now + (60 * 60 * 24 * 3), {"from": msig})
 dola=Contract(DOLA)
-print(f"DOLA msig balance:{dola.balanceOf(msig)/10**18}")
-assert False
+idolabal=dola.balanceOf(msig)/10**18
+ibbeusd = bbeusd.balanceOf(msig)/10**18
+txs.append(vault.swap(singleswap, EXTERNAL_TO_EXTERNAL, 100*10**18, now + (60 * 60 * 24 * 3), {"from": msig}))
+print(f"DOLA msig balance:{idolabal}")
 
 txs.append(authorizer.revokeRoles(RolesToAllow, msig, {"from": msig}))
 
@@ -189,7 +190,8 @@ for lptoken in linearTokens:
             mibalance = initial_msig_balances[tname.lower()] / 10 ** decimals
             mebalance = usdtoken.balanceOf(msig) / 10 ** decimals
             mdelta = mebalance - mibalance
-            print(f"Initial Msig Balance: {mibalance}, Current: {mebalance}, Delta:{mdelta} ")
+            print(f"Initial Msig Balance: {mibalance}, Current: {mebalance}, Delta:{mdelta}\n\n")
+            print(f"Recovered {dola.balanceOf(msig)/10**dola.decimals()} DOLA using {ibbeusd} available bbeusd")
 
 
 
