@@ -113,7 +113,7 @@ INTERNAL_TO_EXTERNAL = (MULTISIG, True, MULTISIG, False)
 
 
 ### Setup stuff that happens before the atomic tx
-RolesToAllow = [bbeusdc.getActionId(bbeusdc.unpause.signature), bbedola.getActionId(bbeusdc.unpause.signature)] ### All Linear Pool Tokens here have the same action id
+RolesToAllow = [bbeusdc.getActionId(bbeusdc.unpause.signature), bbedola.getActionId(bbedola.unpause.signature), bbedola.getActionId(bbedola.startAmplificationParameterUpdate.signature)] ### All Linear Pool Tokens here have the same action id
 eulerProxy = Contract.from_abi("Proxy", "0x055DE1CCbCC9Bc5291569a0b6aFFdF8b5707aB16", EulerProxy)
 eulerProxy.installModules(["0xbb0D4bb654a21054aF95456a3B29c63e8D1F4c0a"], {"from": EULER_ADMIN}) ## fix rate provider
 
@@ -148,16 +148,16 @@ userdata = b""
 
 singleswap = (poolId, 0, assetIn, assetOut, bbeusd.balanceOf(msig), userdata)
 ### Jack up a-factor to increase output.  This will have to be done by the maxis over multiple days to work in pause
-bbedola.startAmplificationParameterUpdate(400, chain.time()+(60*60*24), {"from": "0xf4A80929163C5179Ca042E1B292F5EFBBE3D89e6"})
+bbedola.startAmplificationParameterUpdate(400, chain.time()+(60*60*24), {"from": msig})
 chain.sleep(60 * 60 * 24 * 1)
 chain.mine()
-bbedola.startAmplificationParameterUpdate(800, chain.time()+(60*60*24), {"from": "0xf4A80929163C5179Ca042E1B292F5EFBBE3D89e6"})
+bbedola.startAmplificationParameterUpdate(800, chain.time()+(60*60*24), {"from": msig})
 chain.sleep(60 * 60 * 24 * 1)
 chain.mine()
-bbedola.startAmplificationParameterUpdate(1600, chain.time()+(60*60*24), {"from": "0xf4A80929163C5179Ca042E1B292F5EFBBE3D89e6"})
+bbedola.startAmplificationParameterUpdate(1600, chain.time()+(60*60*24), {"from": msig})
 chain.sleep(60 * 60 * 24 * 1)
 chain.mine()
-bbedola.startAmplificationParameterUpdate(3200, chain.time()+(60*60*24), {"from": "0xf4A80929163C5179Ca042E1B292F5EFBBE3D89e6"})
+bbedola.startAmplificationParameterUpdate(3200, chain.time()+(60*60*24), {"from": msig})
 chain.sleep(60 * 60 * 24 * 1)
 chain.mine()
 now = chain.time()
@@ -190,8 +190,8 @@ for lptoken in linearTokens:
             mibalance = initial_msig_balances[tname.lower()] / 10 ** decimals
             mebalance = usdtoken.balanceOf(msig) / 10 ** decimals
             mdelta = mebalance - mibalance
-            print(f"Initial Msig Balance: {mibalance}, Current: {mebalance}, Delta:{mdelta}\n\n")
-            print(f"Recovered {dola.balanceOf(msig)/10**dola.decimals()} DOLA using {ibbeusd} available bbeusd\n\n")
+            print(f"Initial Msig Balance: {mibalance}, Current: {mebalance}, Delta:{mdelta}")
+print(f"\n\nRecovered {dola.balanceOf(msig)/10**dola.decimals()} DOLA using {ibbeusd} available bbeusd\n\n")
 
 
 
