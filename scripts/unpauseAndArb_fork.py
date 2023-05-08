@@ -115,7 +115,7 @@ INTERNAL_TO_EXTERNAL = (MULTISIG, True, MULTISIG, False)
 ### Setup stuff that happens before the atomic tx
 RolesToAllow = [bbeusdc.getActionId(bbeusdc.unpause.signature), bbedola.getActionId(bbedola.unpause.signature), bbedola.getActionId(bbedola.startAmplificationParameterUpdate.signature)] ### All Linear Pool Tokens here have the same action id
 eulerProxy = Contract.from_abi("Proxy", "0x055DE1CCbCC9Bc5291569a0b6aFFdF8b5707aB16", EulerProxy)
-eulerProxy.installModules(["0xbb0D4bb654a21054aF95456a3B29c63e8D1F4c0a"], {"from": EULER_ADMIN}) ## fix rate provider
+eulerProxy.installModules(["0x75e82de02e3e512f3b0e28862a42055d59ddc1e0"], {"from": EULER_ADMIN}) ## fix rate provider
 
 ### Allow dao multisig to unpause in atomic tx
 txs.append(authorizer.grantRoles(RolesToAllow, msig, {"from": msig}))
@@ -128,7 +128,7 @@ for lt in linearTokens:
     poolId = lt.getPoolId()
     assetOut = Contract(lt.getMainToken())
     userdata = b""
-    tokenAmount = initial_liquid_dollars_by_pool[assetOut.symbol()]/1.0006
+    tokenAmount = initial_liquid_dollars_by_pool[assetOut.symbol()]/1.001
 
     singleswap = (poolId, swapKind, assetIn, assetOut, tokenAmount, userdata)
 
