@@ -3,6 +3,9 @@
 from brownie import Contract, chain
 import json
 import time
+from decimal import Decimal
+from tqdm import tqdm
+import pandas as pd
 
 now = time.time()
 
@@ -11,6 +14,7 @@ txs = []
 
 
 ### Constants
+ETH_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
 MULTISIG = "0x10A19e7eE7d7F8a52822f6817de8ea18204F2e4f".lower() ### Should be able to unpause pools
 WHALE = "0x4D6175d58C5AceEf30F546C0d5A557efFa53A950" ### Temple Multisig
 EULER_ADMIN ="0x25Aa4a183800EcaB962d84ccC7ada58d4e126992" ### Euler msig that can change protocol settings
@@ -62,6 +66,77 @@ token_name_by_address = {
     usdt.address.lower(): "USDT",
     bbedola.address.lower(): "bbeDOLA"
 }
+def get_internal_balance(address, token):
+   return vault.getInternalBalance(address, [token])[0]
+
+
+def take_snapshot(address, tokens):
+    print(f"snapshotting {address}...")
+    df = {"address": [], "symbol": [], "mantissa_before": [], "mantissa_internal_before": [], "decimals": []}
+    for token in tqdm(tokens):
+        if token.lower() not in etokens:
+            try:
+                token = Contract(token) if type(token) != Contract else token
+            except:
+                token = (Contract.from_explorer(token) if type(token) != Contract else token)
+            addr = token.address
+            sym = token.symbol()
+            bal = Decimal(token.balanceOf(addr))
+            dec = token.decimals
+        else:
+            addr = token
+            sym = token_name_by_address[token]
+            bal = 0
+            dec = 10**18
+        if token.address not in df["address"]:
+            try:
+                df["address"].append(addr)
+                df["symbol"].append(sym)
+                df["mantissa_internal_before"].append(get_internal_balance(address, token))
+                df["mantissa_before"].append(bal)
+                df["decimals"].append(dec)
+            except Exception as e:
+                print(token, e)
+    return pd.DataFrame(df)
+
+
+def print_snapshot(address, snapshot, csv_destination=None):
+    if not isinstance(snapshot, pd.DataFrame):
+        return
+    if snapshot is None:
+        raise
+    df = snapshot.set_index("address")
+
+    for token in df.index.to_list():
+        if token.lower not in etokens:
+
+            try:
+                token = Contract(token) if type(token) != Contract else token
+            except:
+                token = (Contract.from_explorer(token) if type(token) != Contract else token)
+            bal = Decimal(token.balanceOf(address))
+        else:
+            bal = 0
+        df.at[token.address, "mantissa_internal_after"] = bal
+
+        # calc deltas
+    df["internal_before"] = df["mantissa_internal_before"] / 10**df['decimals']
+    df["internal_after"] = df["mantissa_internal_after"] / 10**df['decimals']
+    df["balance_before"] = df["mantissa_before"] / 10 ** df["decimals"]
+    df["balance_after"] = df["mantissa_after"] / 10 ** df["decimals"]
+    df["balance_delta"] = (df["mantissa_after"] - df["mantissa_before"]) / 10 ** df["decimals"]
+    df["internal_delta"] = (df["internal_after"]) - df["internal_before"]
+
+    # narrow down to columns of interest
+    df = df.set_index("symbol")[
+        ["balance_before", "balance_after", "balance_delta", "internal_before", "internal_after", "internal_delta"]
+    ]
+
+    # only keep rows for which there is a delta
+    df = df[df["balance_delta"] != 0]
+    print(df)
+
+
 
 def transfer_internal_all(token, source, dest):
     amount = vault.getInternalBalance(source, [token])[0]
@@ -80,6 +155,7 @@ for token in etokens:
     transfer_internal_all(token, whale, msig)
 
 ### Save initial msig state  for reporting
+snap = take_snapshot(msig, [bbeusd, bbeusdc, bbedai, dai, usdc, eUSDC, eDAI, bbedola])
 
 initial_msig_balances ={
     "usdt": usdt.balanceOf(msig),
@@ -109,13 +185,23 @@ print(initial_msig_balances)
 
 
 ################################## DO IT ##########################################
+print_snapshot(msig, snap)
 INTERNAL_TO_EXTERNAL = (MULTISIG, True, MULTISIG, False)
 
 
 ### Setup stuff that happens before the atomic tx
-RolesToAllow = [bbeusdc.getActionId(bbeusdc.unpause.signature), bbedola.getActionId(bbedola.unpause.signature), bbedola.getActionId(bbedola.startAmplificationParameterUpdate.signature)] ### All Linear Pool Tokens here have the same action id
+RolesToAllow = [bbeusdc.getActionId(bbeusdc.unpause.signature), ### All Linear Pool Tokens here have the same action id
+                bbedola.getActionId(bbedola.unpause.signature),
+                bbedola.getActionId(bbedola.startAmplificationParameterUpdate.signature),
+                ### To get bb-e-usd for dola arb
+                bbeusdc.getActionId(bbeusdc.disableRecoveryMode.signature),
+                bbeusdc.getActionId(bbeusdc.enableRecoveryMode.signature),
+                bbeusd.getActionId(bbeusd.unpause.signature),
+                bbeusd.getActionId(bbeusd.disableRecoveryMode.signature),
+                bbeusd.getActionId(bbeusd.enableRecoveryMode.signature)
+                ]
 eulerProxy = Contract.from_abi("Proxy", "0x055DE1CCbCC9Bc5291569a0b6aFFdF8b5707aB16", EulerProxy)
-eulerProxy.installModules(["0xbb0D4bb654a21054aF95456a3B29c63e8D1F4c0a"], {"from": EULER_ADMIN}) ## fix rate provider
+eulerProxy.installModules(["0x75e82de02e3e512f3b0e28862a42055d59ddc1e0"], {"from": EULER_ADMIN}) ## fix rate provider
 
 ### Allow dao multisig to unpause in atomic tx
 txs.append(authorizer.grantRoles(RolesToAllow, msig, {"from": msig}))
@@ -128,25 +214,36 @@ for lt in linearTokens:
     poolId = lt.getPoolId()
     assetOut = Contract(lt.getMainToken())
     userdata = b""
-    tokenAmount = initial_liquid_dollars_by_pool[assetOut.symbol()]/1.0006
+    tokenAmount = initial_liquid_dollars_by_pool[assetOut.symbol()]/1.001
 
     singleswap = (poolId, swapKind, assetIn, assetOut, tokenAmount, userdata)
 
     txs.append(vault.swap(singleswap, INTERNAL_TO_EXTERNAL, 10**50, now+(60*60*24*3), {"from": msig}))
-
+print("bbeusd ARB")
+print_snapshot(msig, snap)
 
 ### Handle Dola pool
 EXTERNAL_TO_EXTERNAL = (MULTISIG, False, MULTISIG, False)
-
-bbeusd.transfer(msig, 50000*10**18, {"from": vault.address})
+INTERNAL_TO_INTERNAL = (MULTISIG, True, MULTISIG, True)
+### Take bb-e-usd from vault - fork only
+#bbeusd.transfer(msig, 50000*10**18, {"from": vault.address})
+## by bb-e-usdc from the pool
+txs.append(bbeusdc.unpause({"from": msig}))
+txs.append(bbeusdc.disableRecoveryMode({"from": msig}))
+singleswap = (bbeusdc.getPoolId(), 0, eUSDC, bbeusdc, 100000*10**18, b"")
+txs.append(vault.swap(singleswap, INTERNAL_TO_INTERNAL, 40000*10**18, now + (60 * 60 * 24 * 3), {"from": msig}))
+print("After bbeUSDC purchase")
+print_snapshot(msig, snap)
+### Buy bb-e-usd from pool
+txs.append(bbeusd.unpause({"from": msig}))
+txs.append(bbeusd.disableRecoveryMode({"from": msig}))
+singleswap = (bbeusd.getPoolId(), 0, bbeusdc, bbeusd, 50000*10**18, b"")
+txs.append(vault.swap(singleswap, INTERNAL_TO_EXTERNAL, 900000*10**18, now + (60 * 60 * 24 * 3), {"from": msig}))
+snap.snap("after bb-e-usd purchase")
+### Arb DOLA pool with bb-e-usd
 txs.append(bbedola.unpause({"from": msig}))
-assetIn = bbeusd.address
-poolId = bbedola.getPoolId()
-assetOut = DOLA
-userdata = b""
-(tokenAmount, foo, bar, foobar) = vault.getPoolTokenInfo(bbedola.getPoolId(), DOLA)
+txs.append(bbedola.disableRecoveryMode({"from": msig}))
 
-singleswap = (poolId, 0, assetIn, assetOut, bbeusd.balanceOf(msig), userdata)
 ### Jack up a-factor to increase output.  This will have to be done by the maxis over multiple days to work in pause
 bbedola.startAmplificationParameterUpdate(400, chain.time()+(60*60*24), {"from": msig})
 chain.sleep(60 * 60 * 24 * 1)
@@ -161,11 +258,26 @@ bbedola.startAmplificationParameterUpdate(3200, chain.time()+(60*60*24), {"from"
 chain.sleep(60 * 60 * 24 * 1)
 chain.mine()
 now = chain.time()
+
+assetIn = bbeusd.address
+poolId = bbedola.getPoolId()
+assetOut = DOLA
+userdata = b""
+(tokenAmount, foo, bar, foobar) = vault.getPoolTokenInfo(bbedola.getPoolId(), DOLA)
+singleswap = (poolId, 0, assetIn, assetOut, bbeusd.balanceOf(msig), userdata)
+
 dola=Contract(DOLA)
 idolabal=dola.balanceOf(msig)/10**18
 ibbeusd = bbeusd.balanceOf(msig)/10**18
 txs.append(vault.swap(singleswap, EXTERNAL_TO_EXTERNAL, 100*10**18, now + (60 * 60 * 24 * 3), {"from": msig}))
 print(f"DOLA msig balance:{idolabal}")
+
+print("done")
+print_snapshot(msig, snap)
+
+### Turn Recovery Mode back on and revoke added roles
+txs.append(bbedola.enableRecoveryMode({"from": msig}))
+txs.append(bbeusdc.enableRecoveryMode({"from": msig}))
 
 txs.append(authorizer.revokeRoles(RolesToAllow, msig, {"from": msig}))
 
@@ -211,6 +323,59 @@ for tx in txs:
 endjson["transactions"] = txlist
 with open("permissionedArb-daoMultisig.json", "w") as f:
     json.dump(endjson, f, indent=3)
+
+
+### Helper functions  for reporting
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
