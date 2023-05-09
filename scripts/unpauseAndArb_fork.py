@@ -12,6 +12,7 @@ now = time.time()
 ### Init global tx list
 txs = []
 
+### This is a lot of setup and balance checking.  The actual work starts around 188.  Sorry it's a bit messy.  It's a 1 off PoC
 
 ### Constants
 ETH_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
@@ -73,27 +74,29 @@ def get_internal_balance(address, token):
 def take_snapshot(address, tokens):
     print(f"snapshotting {address}...")
     df = {"address": [], "symbol": [], "mantissa_before": [], "mantissa_internal_before": [], "decimals": []}
-    for token in tqdm(tokens):
-        if token.lower() not in etokens:
-            try:
-                token = Contract(token) if type(token) != Contract else token
-            except:
-                token = (Contract.from_explorer(token) if type(token) != Contract else token)
+    for token in tokens:
+        if isinstance(token, str):
+            if token.lower() in etokens:
+                addr = token
+                sym = token_name_by_address[token]
+                bal = 0
+                dec = 18
+            else:
+                try:
+                    token = Contract(token)
+                except:
+                    token = Contract.from_explorer(token)
+        if type(token) == Contract:
             addr = token.address
             sym = token.symbol()
-            bal = Decimal(token.balanceOf(addr))
-            dec = token.decimals
-        else:
-            addr = token
-            sym = token_name_by_address[token]
-            bal = 0
-            dec = 10**18
-        if token.address not in df["address"]:
+            bal = token.balanceOf(address)
+            dec = token.decimals()
+        if addr not in df["address"]:
             try:
                 df["address"].append(addr)
                 df["symbol"].append(sym)
-                df["mantissa_internal_before"].append(get_internal_balance(address, token))
-                df["mantissa_before"].append(bal)
+                df["mantissa_internal_before"].append(Decimal(get_internal_balance(address, token)))
+                df["mantissa_before"].append(Decimal(bal))
                 df["decimals"].append(dec)
             except Exception as e:
                 print(token, e)
@@ -108,24 +111,28 @@ def print_snapshot(address, snapshot, csv_destination=None):
     df = snapshot.set_index("address")
 
     for token in df.index.to_list():
-        if token.lower not in etokens:
+        if isinstance(token, str):
+            taddr = token
+            if token.lower() in etokens:
+                bal = 0
+            else:
+                try:
+                    token = Contract(token)
+                except:
+                    token = Contract.from_explorer(token)
+                taddr = token.address
+                bal = token.balanceOf(address)
 
-            try:
-                token = Contract(token) if type(token) != Contract else token
-            except:
-                token = (Contract.from_explorer(token) if type(token) != Contract else token)
-            bal = Decimal(token.balanceOf(address))
-        else:
-            bal = 0
-        df.at[token.address, "mantissa_internal_after"] = bal
+        df.at[taddr, "mantissa_after"] = Decimal(bal)
+        df.at[taddr, "mantissa_internal_after"] = Decimal(get_internal_balance(address, taddr))
 
         # calc deltas
     df["internal_before"] = df["mantissa_internal_before"] / 10**df['decimals']
     df["internal_after"] = df["mantissa_internal_after"] / 10**df['decimals']
     df["balance_before"] = df["mantissa_before"] / 10 ** df["decimals"]
     df["balance_after"] = df["mantissa_after"] / 10 ** df["decimals"]
-    df["balance_delta"] = (df["mantissa_after"] - df["mantissa_before"]) / 10 ** df["decimals"]
-    df["internal_delta"] = (df["internal_after"]) - df["internal_before"]
+    df["balance_delta"] = df["balance_before"] - df["balance_after"]
+    df["internal_delta"] = df["internal_after"] - df["internal_before"]
 
     # narrow down to columns of interest
     df = df.set_index("symbol")[
@@ -133,7 +140,7 @@ def print_snapshot(address, snapshot, csv_destination=None):
     ]
 
     # only keep rows for which there is a delta
-    df = df[df["balance_delta"] != 0]
+    df = df[df["balance_delta"] + df["internal_delta"] != 0]
     print(df)
 
 
@@ -177,15 +184,12 @@ for lptoken in linearTokens:
         if tokens[i] not in etokens and "-e-" not in token_name_by_address[tokens[i].lower()]:
             initial_liquid_dollars_by_pool[token_name_by_address[tokens[i].lower()]] = balances[i]
 
-#### Print starting state:
-print("Starting pool balances:\n")
-print(initial_liquid_dollars_by_pool)
-print("Starting msig balances:\n")
-print(initial_msig_balances)
-
 
 ################################## DO IT ##########################################
+print("Setup Complete.")
 print_snapshot(msig, snap)
+print("Taking fresh balance snapshot and starting arb.")
+snap = take_snapshot(msig, [bbeusd, bbeusdc, bbedai, dai, usdc, eUSDC, eDAI, bbedola])
 INTERNAL_TO_EXTERNAL = (MULTISIG, True, MULTISIG, False)
 
 
@@ -270,7 +274,6 @@ dola=Contract(DOLA)
 idolabal=dola.balanceOf(msig)/10**18
 ibbeusd = bbeusd.balanceOf(msig)/10**18
 txs.append(vault.swap(singleswap, EXTERNAL_TO_EXTERNAL, 100*10**18, now + (60 * 60 * 24 * 3), {"from": msig}))
-print(f"DOLA msig balance:{idolabal}")
 
 print("done")
 print_snapshot(msig, snap)
