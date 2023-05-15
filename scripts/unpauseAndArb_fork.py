@@ -146,7 +146,6 @@ assetOut = DOLA
 userdata = b""
 (tokenAmount, foo, bar, foobar) = vault.getPoolTokenInfo(bbedola.getPoolId(), DOLA)
 
-singleswap = (poolId, 0, assetIn, assetOut, bbeusd.balanceOf(msig), userdata)
 ### Jack up a-factor to increase output.  This will have to be done by the maxis over multiple days to work in pause
 bbedola.startAmplificationParameterUpdate(400, chain.time()+(60*60*24), {"from": msig})
 chain.sleep(60 * 60 * 24 * 1)
@@ -164,6 +163,9 @@ now = chain.time()
 dola=Contract(DOLA)
 idolabal=dola.balanceOf(msig)/10**18
 ibbeusd = bbeusd.balanceOf(msig)/10**18
+
+singleswap = (poolId, 0, assetIn, assetOut, bbeusd.balanceOf(msig), userdata)
+EXTERNAL_TO_EXTERNAL = (MULTISIG, False, MULTISIG, False)
 txs.append(vault.swap(singleswap, EXTERNAL_TO_EXTERNAL, 100*10**18, now + (60 * 60 * 24 * 3), {"from": msig}))
 print(f"DOLA msig balance:{idolabal}")
 
