@@ -7,12 +7,10 @@ dotenv: .env
 
 dependencies:
     - OpenZeppelin/openzeppelin-contracts@4.5.0
-    - smartcontractkit/chainlink@1.6.0
-    - Tritium-VLK/balancer-v2-interfaces@2023.04.24
+    - Tritium-VLK/balancer-v2-monorepo@2023.04.24
 
 compiler:
     solc:
         remappings:
           - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.5.0"
-          - "@chainlink=smartcontractkit/chainlink@1.6.0"
-          - "@balancer=Tritium-VLK/balancer-v2-interfaces@2023.04.24"
+          - "@balancer=Tritium-VLK/balancer-v2-monorepo@2023.04.24"
