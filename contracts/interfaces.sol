@@ -2,7 +2,6 @@ pragma solidity 0.8.6;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-
 interface IFeeDistributor {
     /**
      * @notice Returns the global time cursor representing the most earliest uncheckpointed week.

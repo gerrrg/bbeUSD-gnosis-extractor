@@ -120,6 +120,13 @@ eulerProxy.installModules(["0x75e82de02e3e512f3b0e28862a42055d59ddc1e0"], {"from
 ### Allow dao multisig to unpause in atomic tx
 txs.append(authorizer.grantRoles(RolesToAllow, msig, {"from": msig}))
 
+
+### list of LinearPool Interfaces
+### recipient (where to send coinz to)
+### Owner (who can call stuff)
+###
+
+
 ### Unpause and arb the pools.
 swapKind = 1 ## 0=GIVEN_IN, 1=GIVEN_OUT
 for lt in linearTokens:
@@ -133,41 +140,6 @@ for lt in linearTokens:
     singleswap = (poolId, swapKind, assetIn, assetOut, tokenAmount, userdata)
 
     txs.append(vault.swap(singleswap, INTERNAL_TO_EXTERNAL, 10**50, now+(60*60*24*3), {"from": msig}))
-
-
-### Handle Dola pool
-EXTERNAL_TO_EXTERNAL = (MULTISIG, False, MULTISIG, False)
-
-bbeusd.transfer(msig, 50000*10**18, {"from": vault.address})
-txs.append(bbedola.unpause({"from": msig}))
-assetIn = bbeusd.address
-poolId = bbedola.getPoolId()
-assetOut = DOLA
-userdata = b""
-(tokenAmount, foo, bar, foobar) = vault.getPoolTokenInfo(bbedola.getPoolId(), DOLA)
-
-### Jack up a-factor to increase output.  This will have to be done by the maxis over multiple days to work in pause
-bbedola.startAmplificationParameterUpdate(400, chain.time()+(60*60*24), {"from": msig})
-chain.sleep(60 * 60 * 24 * 1)
-chain.mine()
-bbedola.startAmplificationParameterUpdate(800, chain.time()+(60*60*24), {"from": msig})
-chain.sleep(60 * 60 * 24 * 1)
-chain.mine()
-bbedola.startAmplificationParameterUpdate(1600, chain.time()+(60*60*24), {"from": msig})
-chain.sleep(60 * 60 * 24 * 1)
-chain.mine()
-bbedola.startAmplificationParameterUpdate(3200, chain.time()+(60*60*24), {"from": msig})
-chain.sleep(60 * 60 * 24 * 1)
-chain.mine()
-now = chain.time()
-dola=Contract(DOLA)
-idolabal=dola.balanceOf(msig)/10**18
-ibbeusd = bbeusd.balanceOf(msig)/10**18
-
-singleswap = (poolId, 0, assetIn, assetOut, bbeusd.balanceOf(msig), userdata)
-EXTERNAL_TO_EXTERNAL = (MULTISIG, False, MULTISIG, False)
-txs.append(vault.swap(singleswap, EXTERNAL_TO_EXTERNAL, 100*10**18, now + (60 * 60 * 24 * 3), {"from": msig}))
-print(f"DOLA msig balance:{idolabal}")
 
 txs.append(authorizer.revokeRoles(RolesToAllow, msig, {"from": msig}))
 
