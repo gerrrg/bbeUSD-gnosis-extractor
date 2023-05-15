@@ -1,6 +1,7 @@
+
 ### Pasted in a bunch of lower addresses.  Since this is a one off POC just pushing stuff that way.  sorry.
 
-from brownie import Contract, chain
+from brownie import Contract, chain, accounts, bbeUSD_arb
 import json
 import time
 
@@ -13,6 +14,7 @@ txs = []
 ### Constants
 MULTISIG = "0x10A19e7eE7d7F8a52822f6817de8ea18204F2e4f".lower() ### Should be able to unpause pools
 WHALE = "0x4D6175d58C5AceEf30F546C0d5A557efFa53A950" ### Temple Multisig
+DEPLOYER = accounts[0]
 EULER_ADMIN ="0x25Aa4a183800EcaB962d84ccC7ada58d4e126992" ### Euler msig that can change protocol settings
 EULER_OG_ETOKEN_LOGIC="0xbb0D4bb654a21054aF95456a3B29c63e8D1F4c0a"
 eUSDC = "0xeb91861f8a4e1c12333f42dce8fb0ecdc28da716".lower()
@@ -25,6 +27,7 @@ BBEUSD="0x50Cf90B954958480b8DF7958A9E965752F627124"
 BBEDOLA="0x133d241f225750d2c92948e464a5a80111920331"
 DOLA="0x865377367054516e17014CcdED1e7d814EDC9ce4"
 VAULT="0xBA12222222228d8Ba445958a75a0704d566BF2C8".lower()
+ARBHELPER="0xF23d8342881eDECcED51EA694AC21C2B68440929".lower()
 with open("abis/ILinearPool.json", "r") as f:
     ILinearPool = json.load(f)
 with open("abis/IComposableStable.json", "r") as f:
@@ -62,6 +65,12 @@ token_name_by_address = {
     usdt.address.lower(): "USDT",
     bbedola.address.lower(): "bbeDOLA"
 }
+## bbeUSD_arb.deploy({"from":DEPLOYER})
+helper = Contract("0xF23d8342881eDECcED51EA694AC21C2B68440929")
+# helper.transferOwnership(MULTISIG,{'from':DEPLOYER})
+# assert ARBHELPER.owner().lower()==MULTISIG,"Owner is not multisig"
+
+
 
 def transfer_internal_all(token, source, dest):
     amount = vault.getInternalBalance(source, [token])[0]
@@ -74,10 +83,6 @@ def transfer_internal_all(token, source, dest):
 linearTokens = [bbeusdc, bbedai]  ### bbeusdt
 etokens = [eUSDC, eDAI] ### USDT is too smol and has other math problems not worth dealing with.
 
-
-# Steal the whales etoken bags
-for token in etokens:
-    transfer_internal_all(token, whale, msig)
 
 ### Save initial msig state  for reporting
 
@@ -108,40 +113,29 @@ print("Starting msig balances:\n")
 print(initial_msig_balances)
 
 
-################################## DO IT ##########################################
-INTERNAL_TO_EXTERNAL = (MULTISIG, True, MULTISIG, False)
-
 
 ### Setup stuff that happens before the atomic tx
-RolesToAllow = [bbeusdc.getActionId(bbeusdc.unpause.signature), bbedola.getActionId(bbedola.unpause.signature), bbedola.getActionId(bbedola.startAmplificationParameterUpdate.signature)] ### All Linear Pool Tokens here have the same action id
+RolesToAllow = [bbeusdc.getActionId(bbeusdc.unpause.signature)] ### All Linear Pool Tokens here have the same action id
 eulerProxy = Contract.from_abi("Proxy", "0x055DE1CCbCC9Bc5291569a0b6aFFdF8b5707aB16", EulerProxy)
-eulerProxy.installModules(["0x75e82de02e3e512f3b0e28862a42055d59ddc1e0"], {"from": EULER_ADMIN}) ## fix rate provider
+# eulerProxy.installModules(["0x75e82de02e3e512f3b0e28862a42055d59ddc1e0"], {"from": EULER_ADMIN}) ## fix rate provider
 
 ### Allow dao multisig to unpause in atomic tx
-txs.append(authorizer.grantRoles(RolesToAllow, msig, {"from": msig}))
+txs.append(authorizer.grantRoles(RolesToAllow, MULTISIG, {"from": msig}))
+input_tokens = [bbeusdc,bbedai]
+output_tokens = [usdc,dai]
+
+for token in input_tokens:
+    txs.append(token.unpause({'from':MULTISIG}))
+
+for etoken in etokens:
+    transfer_internal_all(etoken,MULTISIG,helper)
+
+dustfactors = [350,300]
+
+txs.append(helper.do_arb(input_tokens,output_tokens,dustfactors,MULTISIG,{'from':MULTISIG}))
 
 
-### list of LinearPool Interfaces
-### recipient (where to send coinz to)
-### Owner (who can call stuff)
-###
-
-
-### Unpause and arb the pools.
-swapKind = 1 ## 0=GIVEN_IN, 1=GIVEN_OUT
-for lt in linearTokens:
-    txs.append(lt.unpause({"from": msig}))
-    assetIn = lt.getWrappedToken()
-    poolId = lt.getPoolId()
-    assetOut = Contract(lt.getMainToken())
-    userdata = b""
-    tokenAmount = initial_liquid_dollars_by_pool[assetOut.symbol()]/1.001
-
-    singleswap = (poolId, swapKind, assetIn, assetOut, tokenAmount, userdata)
-
-    txs.append(vault.swap(singleswap, INTERNAL_TO_EXTERNAL, 10**50, now+(60*60*24*3), {"from": msig}))
-
-txs.append(authorizer.revokeRoles(RolesToAllow, msig, {"from": msig}))
+txs.append(authorizer.revokeRoles(RolesToAllow, MULTISIG, {"from": MULTISIG}))
 
 
 ###################################################################################
@@ -165,7 +159,6 @@ for lptoken in linearTokens:
             mebalance = usdtoken.balanceOf(msig) / 10 ** decimals
             mdelta = mebalance - mibalance
             print(f"Initial Msig Balance: {mibalance}, Current: {mebalance}, Delta:{mdelta}")
-print(f"\n\nRecovered {dola.balanceOf(msig)/10**dola.decimals()} DOLA using {ibbeusd} available bbeusd\n\n")
 
 
 
