@@ -173,6 +173,7 @@ txlist = []
 for tx in txs:
     calldata = str(tx.input)
     j = txtemplate
+    j["to"] = tx.receiver
     j["data"] = calldata
     txlist.append(dict(j))
 endjson["transactions"] = txlist
